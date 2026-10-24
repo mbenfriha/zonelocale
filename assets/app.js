@@ -149,7 +149,8 @@ async function analyse(ev) {
     // CA : référence sectorielle France, ajustée par la densité concurrentielle et la taille du marché local
     const fDens = Math.max(0.55, Math.min(1.2, Math.pow(ratio || 1, -0.5)));
     const fTaille = Math.max(0.5, Math.min(1.1, pop1k / 15000));
-    const ca = sector.ca_ref * fDens * fTaille;
+    const caRef = sector.ca_ref || 200000;
+    const ca = caRef * fDens * fTaille;
     const demande = market / (comps.length + 1) * boost;
 
     let score = 62;
