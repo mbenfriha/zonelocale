@@ -67,6 +67,13 @@ li{margin-bottom:6px}
 .btn:hover{background:#0b4a3c}
 .btn.big{font-size:17px;padding:15px 34px}
 .split{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:56px 0 10px}
+.examples{margin:56px 0 0}
+.examples .cols{gap:14px;margin-top:16px}
+.ex{display:block;text-decoration:none;transition:border-color .15s}
+.ex:hover{border-color:var(--accent)}
+.ex b{display:block;font-size:17px;letter-spacing:-.01em;margin-bottom:4px}
+.ex span{display:block;font-size:13.5px;color:var(--muted);line-height:1.45}
+.ex em{display:block;margin-top:12px;font-style:normal;font-size:13.5px;color:var(--accent);font-weight:600}
 .split p{color:#3b342d}
 .pricing{display:grid;grid-template-columns:1.6fr .8fr;gap:30px;align-items:center;margin:44px 0}
 .method{margin:44px 0 0;max-width:760px}

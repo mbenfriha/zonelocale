@@ -191,7 +191,7 @@ function render(o) {
     : score >= 55
       ? "La zone peut fonctionner, mais pas avec la même offre que tout le monde : le positionnement fait la différence."
       : "La concurrence est déjà dense par rapport à la population. Il faut une raison très forte d'y aller."));
-  if (ratio != null && ratio > 2 && anchors.transport >= 5) {
+  if (ratio != null && ratio > 2 && anchors.transport >= 5 && score >= 55) {
     parts.push(" Cette adresse est en zone de passage : la clientèle de non-résidents peut compenser une partie de la densité, ce que ces chiffres ne mesurent pas.");
   }
   $("#r-verdict").innerHTML = parts.join(" ");
