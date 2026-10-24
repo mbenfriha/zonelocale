@@ -7,6 +7,9 @@ const OVERPASS = [
 ];
 let DATA = null, selected = null, running = false;
 
+// Quand le lien de paiement existe (Stripe / Polar), le coller ici : il remplace le mailto partout.
+const PAYMENT_URL = ""; // ex. "https://buy.stripe.com/xxxxxxxx"
+
 const fmt = (n) => new Intl.NumberFormat("fr-FR").format(Math.round(n));
 const eur = (n) => fmt(n) + " €";
 const dist = (a, b) => {
@@ -204,9 +207,15 @@ function render(o) {
 
   const subject = encodeURIComponent(`Commande dossier ZoneLocale — ${sector.label} — ${g.label}`);
   const body = encodeURIComponent(`Bonjour,\n\nJe souhaite le dossier complet pour :\n- Adresse : ${g.label}\n- Secteur : ${sector.label}\n\nMerci de m'envoyer le lien de paiement (89 € TTC).\n`);
-  const href = `mailto:benfriha.mohamed@gmail.com?subject=${subject}&body=${body}`;
+  const href = PAYMENT_URL || `mailto:benfriha.mohamed@gmail.com?subject=${subject}&body=${body}`;
   ["#buy", "#buy2"].forEach((s) => { const el = $(s); if (el) el.href = href; });
 }
 
 $("#form").addEventListener("submit", analyse);
 init().catch((e) => console.error(e));
+
+// si un lien de paiement est configuré, il remplace aussi le mailto du bloc tarif
+if (PAYMENT_URL) {
+  const b = document.querySelector("#buy2");
+  if (b) b.href = PAYMENT_URL;
+}
