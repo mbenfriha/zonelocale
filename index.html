@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZoneLocale — l'étude de marché de votre future adresse, en 30 secondes</title>
+<meta name="description" content="Combien de concurrents autour de votre adresse, combien de clients, quel chiffre d'affaires viser. Diagnostic gratuit en 30 secondes à partir des données publiques (OpenStreetMap, INSEE). Dossier complet 89 €.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f5c4a'/><circle cx='50' cy='50' r='26' fill='none' stroke='%23fbf9f6' stroke-width='7'/><circle cx='50' cy='50' r='7' fill='%23fbf9f6'/></svg>">
+</head>
+<body>
+<header>
+  <a class="logo" href="/">Zone<span>Locale</span></a>
+  <nav>
+    <a href="#diagnostic">Diagnostic gratuit</a>
+    <a href="exemples/restaurant-paris-11.html">Exemple de dossier</a>
+    <a href="#tarif">Tarif</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Étude d'implantation · données ouvertes</p>
+    <h1>Votre futur emplacement a déjà<br><em>des voisins</em>. Combien&nbsp;?</h1>
+    <p class="lede">Entrez une adresse. En 30 secondes vous saurez combien de concurrents directs y opèrent,
+    combien de clients vivent autour, et si la zone peut porter un chiffre d'affaires. Sans compte, sans carte bancaire.</p>
+  </section>
+
+  <section id="diagnostic" class="card form-card">
+    <form id="form" autocomplete="off">
+      <div class="field addr">
+        <label for="addr">Adresse du local envisagé</label>
+        <input id="addr" name="addr" type="text" placeholder="12 rue Oberkampf, Paris" required
+               aria-describedby="addr-help">
+        <div id="suggest" class="suggest" hidden></div>
+        <p id="addr-help" class="hint">Adresse exacte ou rue + code postal. Le diagnostic porte sur un rayon de 1 km.</p>
+      </div>
+      <div class="field">
+        <label for="sector">Secteur</label>
+        <select id="sector" required></select>
+      </div>
+      <button type="submit" id="go">Analyser la zone</button>
+    </form>
+    <p class="micro">Sources : OpenStreetMap · INSEE · Base Adresse Nationale. Aucune donnée personnelle collectée.</p>
+  </section>
+
+  <section id="result" hidden>
+    <div class="card result-head">
+      <div>
+        <p class="eyebrow" id="r-addr"></p>
+        <h2 id="r-title">—</h2>
+      </div>
+      <div class="score" id="r-score"><span>—</span><small>indice de tension</small></div>
+    </div>
+
+    <div class="kpis" id="r-kpis"></div>
+
+    <div class="cols">
+      <div class="card">
+        <h3>Concurrents les plus proches</h3>
+        <table id="r-comps"><tbody></tbody></table>
+        <p class="hint" id="r-comps-note"></p>
+      </div>
+      <div class="card">
+        <h3>Ce que ça veut dire</h3>
+        <p id="r-verdict"></p>
+        <ul id="r-anchors"></ul>
+      </div>
+    </div>
+
+    <div class="card paywall">
+      <div>
+        <p class="eyebrow">Dossier complet</p>
+        <h2>Les 12 pages qui manquent à votre diagnostic</h2>
+        <p>Le diagnostic gratuit vous donne le nombre. Le dossier donne la décision :</p>
+        <ul class="ticks">
+          <li>Zone de chalandise par anneaux (300 m, 600 m, 1 km, 3 km) : population estimée et méthode de calcul</li>
+          <li>Liste exhaustive des concurrents (jusqu'à 400 points, nom, distance, type) + export CSV</li>
+          <li>Points d'ancrage : transports, supermarchés, bureaux, écoles, marchés — et leur effet sur le passage</li>
+          <li>Indice de saturation comparé à la moyenne nationale du secteur</li>
+          <li>Trois scénarios de chiffre d'affaires avec hypothèses explicites (prudent / médian / optimiste)</li>
+          <li>Recommandations : négociation du loyer, positionnement, ce qu'il faut vérifier sur place</li>
+        </ul>
+      </div>
+      <div class="buy">
+        <div class="price">89 €<small>TTC, une fois</small></div>
+        <a class="btn" id="buy" href="#tarif">Commander ce dossier</a>
+        <p class="hint">Livré sous 24 h ouvrées, au format web + PDF.<br>Remboursé si vous le jugez inutile sous 7 jours.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="split">
+    <div>
+      <h2>Pour qui</h2>
+      <p>Ceux qui signent un bail ou un fonds de commerce et qui n'ont ni 1 500 € pour un cabinet,
+      ni l'envie de passer trois soirées à recopier des données.</p>
+      <ul class="ticks">
+        <li>Ouverture d'un commerce ou d'un restaurant</li>
+        <li>Rachat d'un fonds de commerce : vérifier la zone avant de signer</li>
+        <li>Choix entre deux ou trois locaux</li>
+        <li>Dossier bancaire : la partie « marché » du business plan, chiffrée</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Ce que ce n'est pas</h2>
+      <p>Pas une enquête terrain, pas un questionnaire, pas une prévision garantie.
+      C'est la structure du marché autour d'une adresse, mesurée sur des données publiques,
+      avec les hypothèses écrites noir sur blanc.</p>
+      <p>Un cabinet facture 1 500 à 3 500 € et rend l'étude en 4 semaines.
+      Ici : 89 € et 24 heures. La contrepartie est assumée : pas d'entretien client, pas de terrain.</p>
+    </div>
+  </section>
+
+  <section id="tarif" class="card pricing">
+    <div>
+      <p class="eyebrow">Tarif</p>
+      <h2>Dossier d'implantation</h2>
+      <ul class="ticks">
+        <li>Une adresse, un secteur, 12 pages</li>
+        <li>Livraison sous 24 h ouvrées (web + PDF)</li>
+        <li>Export CSV des concurrents</li>
+        <li>Deux adresses comparées : 149 €</li>
+      </ul>
+    </div>
+    <div class="buy">
+      <div class="price">89 €<small>TTC</small></div>
+      <a class="btn big" id="buy2" href="mailto:benfriha.mohamed@gmail.com?subject=Commande%20dossier%20ZoneLocale">Commander</a>
+      <p class="hint">Paiement par carte sur lien sécurisé, envoyé en réponse.<br>Dossier livré dès réception du paiement.</p>
+    </div>
+  </section>
+
+  <section class="method">
+    <h2>Méthode</h2>
+    <p>Les concurrents sont les établissements de votre secteur déclarés dans OpenStreetMap, comptés par distance
+    réelle à vol d'oiseau. La population vient des données INSEE communales, projetées sur chaque anneau.
+    Le chiffre d'affaires est dérivé d'un panier moyen et d'une fréquence de visite sectoriels, répartis entre
+    les concurrents présents et corrigés par le passage. Toutes les hypothèses figurent dans le dossier.</p>
+    <p>Les données ouvertes ont deux limites, écrites ici avant que vous ne payiez : un établissement fermé
+    peut subsister dans OpenStreetMap, et un établissement très récent peut y manquer. Sur les zones denses,
+    comptez quelques pourcents d'écart. C'est pour cela que le dossier se termine par une liste de vérifications
+    à faire sur place, pas par une recommandation d'achat.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div><b>ZoneLocale</b> — étude d'implantation à partir de données ouvertes.<br>
+    Éditeur indépendant · <a href="legal.html">Mentions légales &amp; données personnelles</a></div>
+    <div class="src">Données : © contributeurs OpenStreetMap (ODbL) · INSEE · Base Adresse Nationale (Etalab)</div>
+  </div>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "source": "OpenStreetMap (ODbL), INSEE (population), api-adresse.data.gouv.fr (géocodage)",
+    "edition": "2026-10"
+  },
+  "sectors": [
+    {"id": "restaurant", "label": "Restaurant", "group": "Restauration", "osm": [["amenity", "^(restaurant)$"]], "ticket": 32, "visit_per_month": 1.1, "density_fr": 2.6, "margin": "70 % de marge brute, 55 % de charges fixes"},
+    {"id": "fastfood", "label": "Restauration rapide / snack", "group": "Restauration", "osm": [["amenity", "^(fast_food)$"]], "ticket": 12, "visit_per_month": 2.2, "density_fr": 0.8, "margin": "62 % de marge brute, ticket bas, fort volume"},
+    {"id": "cafebar", "label": "Café / bar", "group": "Restauration", "osm": [["amenity", "^(cafe|bar|pub)$"]], "ticket": 11, "visit_per_month": 2.0, "density_fr": 0.9, "margin": "75 % de marge sur boissons"},
+    {"id": "boulangerie", "label": "Boulangerie / pâtisserie", "group": "Alimentaire", "osm": [["shop", "^(bakery|pastry)$"]], "ticket": 7, "visit_per_month": 5.5, "density_fr": 0.5, "margin": "70 % de marge brute, achat quotidien"},
+    {"id": "epicerie", "label": "Épicerie / supérette", "group": "Alimentaire", "osm": [["shop", "^(convenience|grocery)$"]], "ticket": 18, "visit_per_month": 3.4, "density_fr": 0.5, "margin": "25 % de marge brute"},
+    {"id": "primeur", "label": "Primeur / fruits et légumes", "group": "Alimentaire", "osm": [["shop", "^(greengrocer|farm)$"]], "ticket": 14, "visit_per_month": 3.0, "density_fr": 0.1, "margin": "30 % de marge brute"},
+    {"id": "coiffeur", "label": "Salon de coiffure", "group": "Beauté / bien-être", "osm": [["shop", "^(hairdresser)$"]], "ticket": 28, "visit_per_month": 0.55, "density_fr": 1.25, "margin": "85 % de marge sur prestation"},
+    {"id": "beaute", "label": "Institut de beauté / ongles", "group": "Beauté / bien-être", "osm": [["shop", "^(beauty)$"], ["leisure", "^spa$"]], "ticket": 45, "visit_per_month": 0.30, "density_fr": 0.9, "margin": "80 % de marge sur prestation"},
+    {"id": "sport", "label": "Salle de sport / studio", "group": "Sport / loisirs", "osm": [["leisure", "^(fitness_centre|sports_centre)$"]], "ticket": 35, "visit_per_month": 1.0, "density_fr": 0.08, "margin": "abonnement, 12 à 18 mois de rétention moyenne"},
+    {"id": "vetements", "label": "Boutique de vêtements", "group": "Équipement", "osm": [["shop", "^(clothes|shoes)$"]], "ticket": 48, "visit_per_month": 0.25, "density_fr": 0.9, "margin": "50 % de marge brute, fort aléa saisonnier"},
+    {"id": "fleuriste", "label": "Fleuriste", "group": "Équipement", "osm": [["shop", "^(florist)$"]], "ticket": 25, "visit_per_month": 0.20, "density_fr": 0.2, "margin": "60 % de marge brute, pics calendaires"},
+    {"id": "librairie", "label": "Librairie / papeterie", "group": "Culture", "osm": [["shop", "^(books|stationery)$"]], "ticket": 19, "visit_per_month": 0.35, "density_fr": 0.12, "margin": "prix unique du livre, marge 20 à 25 %"},
+    {"id": "animalerie", "label": "Animalerie / toilettage", "group": "Équipement", "osm": [["shop", "^(pet|pet_grooming)$"]], "ticket": 30, "visit_per_month": 0.6, "density_fr": 0.06, "margin": "35 % de marge brute"},
+    {"id": "pressing", "label": "Pressing / laverie", "group": "Services", "osm": [["shop", "^(laundry|dry_cleaning)$"]], "ticket": 15, "visit_per_month": 0.5, "density_fr": 0.1, "margin": "60 % de marge sur prestation"},
+    {"id": "garage", "label": "Garage / carrosserie", "group": "Services", "osm": [["shop", "^(car_repair|car)$"]], "ticket": 240, "visit_per_month": 0.06, "density_fr": 0.6, "margin": "45 % de marge brute, ticket élevé"}
+  ],
+  "anchors": [
+    {"key": "supermarche", "label": "Supermarché / hypermarché", "filter": ["shop", "^(supermarket|department_store)$"]},
+    {"key": "ecole", "label": "École / collège / lycée", "filter": ["amenity", "^(school|college|university)$"]},
+    {"key": "transport", "label": "Arrêt de transport en commun", "filter": ["public_transport", "^(station|stop_position)$"]},
+    {"key": "bureaux", "label": "Bureaux / entreprises", "filter": ["office", "."]},
+    {"key": "marche", "label": "Marché", "filter": ["amenity", "^marketplace$"]},
+    {"key": "sante", "label": "Santé (médecin, pharmacie, clinique)", "filter": ["amenity", "^(pharmacy|doctors|clinic|hospital)$"]},
+    {"key": "restauration", "label": "Restauration (tous types)", "filter": ["amenity", "^(restaurant|cafe|fast_food|bar|pub)$"]}
+  ]
+}

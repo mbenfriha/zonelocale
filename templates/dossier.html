@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dossier d'implantation — {{ r.commune.nom }} — {{ r.sector.label }}</title>
+<style>
+  :root{--ink:#15120f;--muted:#6b6259;--line:#e2dbd2;--bg:#fbf9f6;--accent:#0f5c4a;--warn:#a8420f}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+  .wrap{max-width:820px;margin:0 auto;padding:48px 28px 80px}
+  .brand{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+  .brand b{letter-spacing:-.02em;font-size:18px}
+  .brand span{color:var(--muted);font-size:13px}
+  h1{font-size:34px;line-height:1.12;letter-spacing:-.025em;margin:0 0 6px;font-weight:650}
+  .sub{color:var(--muted);font-size:15px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:44px 0 14px;font-weight:600}
+  h3{font-size:19px;margin:26px 0 8px;letter-spacing:-.01em}
+  p{margin:0 0 12px}
+  .verdict{margin:26px 0 8px;padding:22px 24px;border:1px solid var(--line);border-radius:14px;background:#fff;display:flex;gap:22px;align-items:center}
+  .score{font-size:44px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--accent)}
+  .score small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:6px}
+  .verdict b{font-size:18px;display:block;margin-bottom:3px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi b{display:block;font-size:24px;letter-spacing:-.02em}
+  .kpi span{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{background:#f4efe8;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .bar{height:8px;background:#eae3d9;border-radius:99px;overflow:hidden;min-width:60px}
+  .bar i{display:block;height:100%;background:var(--accent)}
+  .note{font-size:13px;color:var(--muted);border-left:3px solid var(--line);padding-left:14px;margin:14px 0}
+  ul{padding-left:18px;margin:8px 0 14px}
+  li{margin-bottom:6px}
+  .scen{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+  .scen div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .scen b{display:block;font-size:26px;letter-spacing:-.02em}
+  .scen span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--muted)}
+  @media print{body{background:#fff}.wrap{padding:0 0 20px}h2{page-break-after:avoid}table{page-break-inside:auto}}
+  @media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr)}.scen{grid-template-columns:1fr}h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><b>ZoneLocale</b><span>Dossier d'implantation · {{ r.generated }}</span></div>
+
+  <h1>{{ r.sector.label }} — {{ r.commune.nom }}</h1>
+  <div class="sub">{{ r.geo.label }}</div>
+
+  <div class="verdict">
+    <div class="score">{{ r.score }}<small>/ 100</small></div>
+    <div>
+      <b>{{ r.verdict }}</b>
+      <span class="sub">{{ r.bands[1000] }} concurrents directs à moins de 1 km, {{ r.pop_3k | int }} habitants dans un rayon de 3 km,
+      indice de tension {{ r.tension_ratio }}× la moyenne nationale.</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="kpi"><b>{{ r.pop_3k | int }}</b><span>habitants à 3 km</span></div>
+    <div class="kpi"><b>{{ r.bands[1000] }}</b><span>concurrents à 1 km</span></div>
+    <div class="kpi"><b>{{ r.tension_ratio }}×</b><span>densité vs France</span></div>
+    <div class="kpi"><b>{{ r.ca.median | eur }}</b><span>CA médian visé</span></div>
+  </div>
+
+  <h2>1. La zone de chalandise</h2>
+  <p>La zone a été découpée en anneaux autour de l'adresse. La population est celle des communes dont le centre
+  tombe dans chaque anneau (source INSEE) : c'est une estimation volontairement prudente en tissu urbain dense,
+  où la population communale est répartie de façon inégale.</p>
+  <table>
+    <tr><th>Rayon</th><th class="num">Habitants</th><th class="num">Concurrents</th><th class="num">Tension</th></tr>
+    {% for rad in [300,600,1000,3000] %}
+    <tr>
+      <td>{{ rad }} m</td>
+      <td class="num">{{ r.pop_rings[rad] | int }}</td>
+      <td class="num">{{ r.bands[rad] }}</td>
+      <td class="num">{{ (r.bands[rad] / (r.pop_rings[rad] or 1) * 1000) | round(1) }} / 1 000 hab.</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="note">Commune : {{ r.commune.nom }} — {{ r.commune.population | int }} habitants,
+  {{ r.commune.densite | int }} hab/km²{% if r.commune.surface_km2 %} sur {{ r.commune.surface_km2 }} km²{% endif %}.</div>
+
+  <h3>Points d'ancrage à moins de 1 km</h3>
+  <p>Les ancres génèrent du passage sans être des concurrents. Elles pèsent dans le calcul du potentiel.</p>
+  <table>
+    {% for k, v in r.anchors_by_key.items() %}
+    <tr><td>{{ r.anchor_labels[k] }}</td><td class="num">{{ v }}</td></tr>
+    {% endfor %}
+    {% if not r.anchors_by_key %}<tr><td colspan="2">Aucune ancre majeure détectée dans le rayon.</td></tr>{% endif %}
+  </table>
+
+  <h2>2. La concurrence</h2>
+  <p>{{ r.bands[3000] }} établissements comparables dans un rayon de 3 km, dont {{ r.bands[600] }} à moins de 600 m.
+  La densité locale est de {{ r.tension_local }} concurrent pour 1 000 habitants, contre
+  {{ r.sector.density_fr }} en moyenne nationale pour ce secteur ({{ r.tension_ratio }}×).</p>
+  <table>
+    <tr><th>#</th><th>Établissement</th><th>Distance</th><th>Repère</th></tr>
+    {% for c in r.competitors[:30] %}
+    <tr><td class="num">{{ loop.index }}</td>
+        <td>{{ c.name or "(sans nom renseigné)" }}</td>
+        <td class="num">{{ c.d | round | int }} m</td>
+        <td>{{ c.tags.brand or c.tags.amenity or c.tags.shop or "" }}</td></tr>
+    {% endfor %}
+  </table>
+  <div class="note">Liste OpenStreetMap, écrêtée à 30 lignes dans ce dossier. La version complète
+  (jusqu'à 400 points, avec coordonnées, est exportée en CSV sur demande).</div>
+
+  <h2>3. Diagnostic</h2>
+  <ul>
+    <li><b>Saturation :</b> {{ "élevée" if (r.tension_ratio or 1) > 1.6 else ("modérée" if (r.tension_ratio or 1) > 1 else "faible") }}
+    — {{ r.tension_ratio }}× la densité nationale du secteur.</li>
+    <li><b>Taille du marché local :</b> {{ r.market | eur }} de dépense annuelle estimée à moins de 1 km
+    ({{ r.pop_1k | int }} hab. × {{ r.sector.visit_per_month }} visite(s)/mois × {{ r.sector.ticket }} € de panier),
+    soit {{ r.market_3k | eur }} sur l'ensemble du rayon de 3 km.</li>
+    <li><b>Passage :</b> {{ r.anchors_by_key.get("transport", 0) }} arrêt(s) de transport,
+    {{ r.anchors_by_key.get("supermarche", 0) }} supermarché(s), {{ r.anchors_by_key.get("bureaux", 0) }} bureau(x)
+    à moins de 1 km.</li>
+  </ul>
+
+  <h2>4. Potentiel de chiffre d'affaires</h2>
+  <p>Hypothèse de part de marché : la demande résidentielle de l'anneau 1 km est répartie à parts égales entre les
+  {{ r.bands[1000] }} concurrents existants et le nouvel entrant, puis corrigée du passage supplémentaire généré par
+  les ancres (transport, supermarchés, bureaux). C'est une hypothèse prudente : elle ignore la clientèle de passage,
+  les touristes et les salariés qui ne résident pas dans la zone — dans un quartier commerçant, le potentiel réel est
+  supérieur ; en zone résidentielle pure, il est proche du réel.</p>
+  <div class="scen">
+    <div><span>Prudent</span><b>{{ r.ca.bas | eur }}</b></div>
+    <div><span>Médian</span><b>{{ r.ca.median | eur }}</b></div>
+    <div><span>Optimiste</span><b>{{ r.ca.haut | eur }}</b></div>
+  </div>
+  <p class="note">Chiffre d'affaires annuel HT attendu en régime de croisière (12 à 18 mois).
+  Structure de coûts typique du secteur : {{ r.sector.margin }}. Ces montants sont des ordres de grandeur,
+  pas une prévision : ils servent à tester la cohérence d'un loyer et d'un investissement, pas à garantir un résultat.</p>
+
+  <h2>5. Ce qu'il faut faire de ces chiffres</h2>
+  <ul>
+    {% if (r.tension_ratio or 1) > 1.6 %}
+    <li>La zone est déjà dense : ne pas y aller avec la même offre que les {{ r.bands[1000] }} concurrents.
+    Chercher une niche (horaire, format, clientèle) plutôt qu'un emplacement.</li>
+    {% else %}
+    <li>La densité reste inférieure à la moyenne : l'emplacement peut supporter une offre standard,
+    à condition de capter le passage des ancres identifiées ci-dessus.</li>
+    {% endif %}
+    <li>Négocier le loyer sur la base du CA prudent ({{ r.ca.bas | eur }}), jamais sur le CA optimiste.
+    Un loyer commercial soutenable reste sous 10 % du CA prévisionnel.</li>
+    <li>Vérifier sur place les 10 concurrents les plus proches : prix affichés, horaires, avis récents.
+    La donnée ouverte donne la structure du marché, pas la qualité de l'offre.</li>
+    {% if r.pop_3k < 5000 %}<li>Zone peu peuplée : le modèle doit compter sur la clientèle de passage ou un rayonnement
+    supérieur à 3 km (site web, livraison, prescription).</li>{% endif %}
+  </ul>
+
+  <footer>
+    <p><b>Méthode.</b> Données OpenStreetMap (© contributeurs OSM, ODbL) extraites le {{ r.generated }} via Overpass API ;
+    population INSEE (geo.api.gouv.fr) ; géocodage api-adresse.data.gouv.fr. Densité nationale de référence :
+    {{ r.sector.density_fr }} {{ r.sector.label | lower }} pour 1 000 habitants (ordre de grandeur sectoriel).
+    Les points d'intérêt OSM sont déclaratifs : un établissement fermé peut subsister, un établissement récent peut manquer.
+    Cette étude ne remplace ni une enquête de terrain, ni un avis comptable ou juridique.</p>
+    <p>ZoneLocale · dossier {{ r.geo.citycode }} · {{ r.poi_total }} points analysés · généré en {{ r.elapsed }} s</p>
+  </footer>
+</div>
+</body>
+</html>
