@@ -158,8 +158,10 @@
     <h2>Méthode</h2>
     <p>Les concurrents sont les établissements de votre secteur déclarés dans OpenStreetMap, comptés par distance
     réelle à vol d'oiseau. La population vient des données INSEE communales, projetées sur chaque anneau.
-    Le chiffre d'affaires est dérivé d'un panier moyen et d'une fréquence de visite sectoriels, répartis entre
-    les concurrents présents et corrigés par le passage. Toutes les hypothèses figurent dans le dossier.</p>
+    Le chiffre d'affaires part du CA moyen du secteur en France, corrigé par deux facteurs : la densité
+    concurrentielle locale (plus il y a de concurrents par habitant, plus le CA atteignable baisse) et la taille
+    du marché de la zone. Un second calcul, par la demande résidentielle, sert de plancher de contrôle.
+    Toutes les hypothèses et tous les facteurs figurent dans le dossier.</p>
     <p>Les données ouvertes ont deux limites, écrites ici avant que vous ne payiez : un établissement fermé
     peut subsister dans OpenStreetMap, et un établissement très récent peut y manquer. Sur les zones denses,
     comptez quelques pourcents d'écart. C'est pour cela que le dossier se termine par une liste de vérifications

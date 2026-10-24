@@ -123,16 +123,20 @@
   </ul>
 
   <h2>4. Potentiel de chiffre d'affaires</h2>
-  <p>Hypothèse de part de marché : la demande résidentielle de l'anneau 1 km est répartie à parts égales entre les
-  {{ r.bands[1000] }} concurrents existants et le nouvel entrant, puis corrigée du passage supplémentaire généré par
-  les ancres (transport, supermarchés, bureaux). C'est une hypothèse prudente : elle ignore la clientèle de passage,
-  les touristes et les salariés qui ne résident pas dans la zone — dans un quartier commerçant, le potentiel réel est
-  supérieur ; en zone résidentielle pure, il est proche du réel.</p>
+  <p>Le chiffre d'affaires de référence du secteur en France est de {{ r.sector.ca_ref | eur }} par établissement.
+  Deux correctifs sont appliqués : un facteur de densité concurrentielle (×{{ r.f_dens }}, qui pénalise les zones
+  où les concurrents sont nombreux par rapport à la population) et un facteur de taille de marché
+  (×{{ r.f_taille }}, lié à la population de l'anneau 1 km).</p>
   <div class="scen">
     <div><span>Prudent</span><b>{{ r.ca.bas | eur }}</b></div>
     <div><span>Médian</span><b>{{ r.ca.median | eur }}</b></div>
     <div><span>Optimiste</span><b>{{ r.ca.haut | eur }}</b></div>
   </div>
+  <p>Contrôle par la demande : la population de l'anneau 1 km ({{ r.pop_1k | int }} hab.) dépense environ
+  {{ r.market | eur }} par an dans ce secteur. Répartie entre les {{ r.bands[1000] }} concurrents présents et
+  le nouvel entrant, elle donne {{ r.demande | eur }} — un plancher qui ignore la clientèle de passage,
+  les touristes et les salariés non résidents. Dans un quartier commerçant, le potentiel réel se situe entre
+  ce plancher et le scénario médian ; en zone résidentielle pure, il reste proche du plancher.</p>
   <p class="note">Chiffre d'affaires annuel HT attendu en régime de croisière (12 à 18 mois).
   Structure de coûts typique du secteur : {{ r.sector.margin }}. Ces montants sont des ordres de grandeur,
   pas une prévision : ils servent à tester la cohérence d'un loyer et d'un investissement, pas à garantir un résultat.</p>

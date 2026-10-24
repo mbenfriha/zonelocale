@@ -41,6 +41,9 @@ Les deux boutons « Commander » basculent dessus automatiquement (le mailto res
   population communale + 50 % des communes voisines dont le centre tombe dans le rayon. C'est une
   estimation, pas un recensement par carreau.
 - Concurrence : points OpenStreetMap déclaratifs. Fermetures non répercutées, ouvertures récentes manquantes.
-- Chiffre d'affaires : demande résidentielle de l'anneau 1 km ÷ (concurrents + 1), corrigée du passage
-  (transports, supermarchés). Ignore touristes et salariés non résidents → plutôt conservateur en centre-ville.
+- Chiffre d'affaires : CA moyen du secteur en France (`ca_ref`) × facteur de densité (ratio^-0,5, borné
+  0,55–1,20) × facteur de taille de marché (population 1 km / 15 000, borné 0,5–1,1). Un calcul de demande
+  résidentielle (population × fréquence × panier ÷ concurrents) sert de plancher de contrôle.
+- `ca_ref` : ordres de grandeur sectoriels (CA annuel moyen par établissement), à remplacer par des données
+  officielles quand elles seront disponibles.
 - Densités nationales (`density_fr`) : ordres de grandeur sectoriels, à raffiner avec des données officielles.

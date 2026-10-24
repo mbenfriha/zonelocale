@@ -146,7 +146,11 @@ async function analyse(ev) {
 
     const market = pop1k * sector.visit_per_month * 12 * sector.ticket;
     let boost = 1 + Math.min(0.25, anchors.transport * 0.03) + Math.min(0.2, anchors.supermarche * 0.05);
-    const ca = market / (comps.length + 1) * boost;
+    // CA : référence sectorielle France, ajustée par la densité concurrentielle et la taille du marché local
+    const fDens = Math.max(0.55, Math.min(1.2, Math.pow(ratio || 1, -0.5)));
+    const fTaille = Math.max(0.5, Math.min(1.1, pop1k / 15000));
+    const ca = sector.ca_ref * fDens * fTaille;
+    const demande = market / (comps.length + 1) * boost;
 
     let score = 62;
     if (ratio != null) score -= Math.min(38, Math.max(0, (ratio - 1.2) * 11));
@@ -178,7 +182,7 @@ function render(o) {
     <div class="kpi"><b>${comps.length}</b><span>concurrents à moins de 1 km</span></div>
     <div class="kpi"><b>${fmt(pop1k)}</b><span>habitants estimés à 1 km</span></div>
     <div class="kpi"><b>${ratio != null ? ratio.toFixed(1) + "×" : "—"}</b><span>densité vs moyenne France</span></div>
-    <div class="kpi"><b>${eur(ca)}</b><span>CA annuel atteignable (estimation)</span></div>`;
+    <div class="kpi"><b>${eur(ca)}</b><span>CA annuel moyen à viser</span></div>`;
 
   const rows = comps.slice(0, 6).map((c) =>
     `<tr><td>${c.name || "(sans nom)"}</td><td class="d">${fmt(c.d)} m</td></tr>`).join("");

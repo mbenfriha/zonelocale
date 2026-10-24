@@ -34,7 +34,8 @@ def http_json(url, params=None, timeout=60, retries=2):
 def overpass(query, timeout=90):
     data = urllib.parse.urlencode({"data": query}).encode()
     endpoints = ["https://overpass-api.de/api/interpreter",
-                 "https://overpass.kumi.systems/api/interpreter"]
+                 "https://overpass.kumi.systems/api/interpreter",
+                 "https://overpass.private.coffee/api/interpreter"]
     last = None
     for ep in endpoints:
         try:
@@ -43,7 +44,7 @@ def overpass(query, timeout=90):
                 return json.loads(r.read().decode())
         except Exception as e:  # noqa: BLE001
             last = e
-            time.sleep(2)
+            time.sleep(3)
     raise RuntimeError(f"Overpass KO: {last}")
 
 
@@ -113,23 +114,31 @@ def catchment(lat, lon, commune, radii=(300, 600, 1000, 3000)):
 
 
 def fetch_pois(lat, lon, sector, radius=3000):
-    parts = []
-    for tag, rx in sector["osm"]:
-        parts.append(f'  nwr(around:{radius},{lat},{lon})["{tag}"~"{rx}"];')
-    for a in ANCHORS:
-        tag, rx = a["filter"]
-        parts.append(f'  nwr(around:{radius},{lat},{lon})["{tag}"~"{rx}"];')
-    q = "[out:json][timeout:120];\n(\n" + "\n".join(parts) + "\n);\nout center tags;"
-    res = overpass(q)
+    # cache disque : Overpass public est lent et parfois indisponible
+    cache_dir = os.path.join(BASE, "cache")
+    os.makedirs(cache_dir, exist_ok=True)
+    key = f"{round(lat,4)}_{round(lon,4)}_{sector['id']}_{radius}.json"
+    cpath = os.path.join(cache_dir, key)
+    if os.path.exists(cpath):
+        return json.load(open(cpath, encoding="utf-8"))
+    # concurrents sur tout le rayon, ancres sur 1 km seulement (plus léger pour Overpass)
+    comp_parts = [f'  nwr(around:{radius},{lat},{lon})["{tag}"~"{rx}"];' for tag, rx in sector["osm"]]
+    anchor_parts = [f'  nwr(around:1000,{lat},{lon})["{tag}"~"{rx}"];' for tag, rx in
+                    [a["filter"] for a in ANCHORS]]
+    q1 = "[out:json][timeout:180];\n(\n" + "\n".join(comp_parts) + "\n);\nout center tags;"
+    q2 = "[out:json][timeout:180];\n(\n" + "\n".join(anchor_parts) + "\n);\nout center tags;"
     pois = []
-    for e in res.get("elements", []):
-        t = e.get("tags", {})
-        plat = e.get("lat") or (e.get("center") or {}).get("lat")
-        plon = e.get("lon") or (e.get("center") or {}).get("lon")
-        if plat is None or plon is None:
-            continue
-        pois.append({"lat": plat, "lon": plon, "tags": t, "d": dist_m((lat, lon), (plat, plon)),
-                     "name": t.get("name") or t.get("brand") or ""})
+    for q in (q1, q2):
+        res = overpass(q, timeout=200)
+        for e in res.get("elements", []):
+            t = e.get("tags", {})
+            plat = e.get("lat") or (e.get("center") or {}).get("lat")
+            plon = e.get("lon") or (e.get("center") or {}).get("lon")
+            if plat is None or plon is None:
+                continue
+            pois.append({"lat": plat, "lon": plon, "tags": t, "d": dist_m((lat, lon), (plat, plon)),
+                         "name": t.get("name") or t.get("brand") or ""})
+    json.dump(pois, open(cpath, "w", encoding="utf-8"))
     return pois
 
 
@@ -191,8 +200,12 @@ def analyse(address, sector_id, radius=3000):
     boost = 1.0
     boost += min(0.25, anchors_by_key.get("transport", 0) * 0.03)
     boost += min(0.20, anchors_by_key.get("supermarche", 0) * 0.05)
-    ca_mid = share * boost
-    scenarios = {"bas": ca_mid * 0.6, "median": ca_mid, "haut": ca_mid * 1.4}
+    # CA : référence sectorielle France, ajustée par la densité concurrentielle et la taille du marché local
+    f_dens = max(0.55, min(1.2, (tens_ratio or 1) ** -0.5))
+    f_taille = max(0.5, min(1.1, pop_1k / 15000))
+    ca_mid = sector["ca_ref"] * f_dens * f_taille
+    demande = market / (bands[1000] + 1) * boost
+    scenarios = {"bas": ca_mid * 0.7, "median": ca_mid, "haut": ca_mid * 1.35}
 
     score = 62
     if tens_ratio is not None:
@@ -217,7 +230,9 @@ def analyse(address, sector_id, radius=3000):
         "bands": bands, "pop_rings": pop_rings, "pop_3k": pop_3k,
         "rings": rings, "competitors": comps[:400], "anchors": anchors,
         "anchors_by_key": anchors_by_key, "tension_local": tens_local, "tension_ratio": tens_ratio,
-        "market": market, "market_3k": market_3k, "pop_1k": pop_1k, "ca": scenarios, "score": score, "verdict": verdict,
+        "market": market, "market_3k": market_3k, "pop_1k": pop_1k, "ca": scenarios,
+        "demande": demande, "f_dens": round(f_dens, 2), "f_taille": round(f_taille, 2),
+        "score": score, "verdict": verdict,
         "elapsed": round(time.time() - t0, 1),
         "anchor_labels": {a["key"]: a["label"] for a in ANCHORS},
         "poi_total": len(pois),
@@ -231,9 +246,45 @@ def main():
     ap.add_argument("--slug", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--json-out")
+    ap.add_argument("--from-json", dest="from_json",
+                    help="re-rendre un dossier depuis un JSON déjà généré (sans rappeler Overpass)")
     args = ap.parse_args()
 
-    res = analyse(args.address, args.sector)
+    if args.from_json:
+        res = json.load(open(args.from_json, encoding="utf-8"))
+        res["bands"] = {int(k): v for k, v in res["bands"].items()}
+        res["pop_rings"] = {int(k): v for k, v in res["pop_rings"].items()}
+        s = SECTOR[res["sector"]["id"]]
+        res["sector"].update({"ca_ref": s["ca_ref"], "margin": s["margin"]})
+        # tension recalculée sur l'anneau 1 km (les anciens JSON utilisaient un autre périmètre)
+        res["tension_local"] = round(res["bands"][1000] / max(res["pop_1k"], 1) * 1000, 2)
+        res["tension_ratio"] = round(res["tension_local"] / s["density_fr"], 2) if s["density_fr"] else None
+        ratio = res.get("tension_ratio") or 1
+        f_dens = max(0.55, min(1.2, ratio ** -0.5))
+        f_taille = max(0.5, min(1.1, res["pop_1k"] / 15000))
+        ca_mid = s["ca_ref"] * f_dens * f_taille
+        res["ca"] = {"bas": ca_mid * 0.7, "median": ca_mid, "haut": ca_mid * 1.35}
+        res["f_dens"], res["f_taille"] = round(f_dens, 2), round(f_taille, 2)
+        abk = res.get("anchors_by_key", {})
+        boost = 1 + min(0.25, abk.get("transport", 0) * 0.03) + min(0.20, abk.get("supermarche", 0) * 0.05)
+        res["demande"] = res["market"] / (res["bands"][1000] + 1) * boost
+        # score et verdict recalculés avec la formule courante
+        score = 62
+        if ratio:
+            score -= min(38, max(0, (ratio - 1.2) * 11))
+        if res["pop_1k"] >= 40000:
+            score += 10
+        elif res["pop_1k"] >= 15000:
+            score += 5
+        elif res["pop_1k"] < 4000:
+            score -= 12
+        score += min(8, abk.get("transport", 0) * 0.8) + min(4, abk.get("supermarche", 0) * 1.5)
+        res["score"] = int(max(5, min(95, score)))
+        res["verdict"] = ("Zone porteuse" if res["score"] >= 75
+                          else "Zone à potentiel sous conditions" if res["score"] >= 55
+                          else "Zone difficile — à travailler avant de signer")
+    else:
+        res = analyse(args.address, args.sector)
     if args.json_out:
         json.dump(res, open(args.json_out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
